@@ -4,14 +4,15 @@ import { siteConfig } from '@/config/site';
 interface Props {
     title: string;
     description?: string;
-    image?: string;
+    /** `null`: the page has no picture of its own, so it sets none (see the recipe pages). */
+    image?: string | null;
     noindex?: boolean;
 }
 
 const { title, description = siteConfig.description, image = siteConfig.defaultOgImage, noindex = false } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url).toString();
-const imageUrl = new URL(image, siteConfig.url).toString();
+const imageUrl = image === null ? undefined : new URL(image, siteConfig.url).toString();
 const fullTitle = title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`;
 ---
 
@@ -24,11 +25,11 @@ const fullTitle = title.includes(siteConfig.name) ? title : `${title} | ${siteCo
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonicalUrl} />
-<meta property="og:image" content={imageUrl} />
+{imageUrl && <meta property="og:image" content={imageUrl} />}
 <meta property="og:site_name" content={siteConfig.name} />
 
-<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
-<meta name="twitter:image" content={imageUrl} />
+{imageUrl && <meta name="twitter:image" content={imageUrl} />}
 {siteConfig.social.twitter && <meta name="twitter:site" content={siteConfig.social.twitter} />}

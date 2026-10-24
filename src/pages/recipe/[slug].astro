@@ -64,7 +64,8 @@ const recipeSchema = {
 };
 ---
 
-<Layout title={`${recipe.title} recipe`} description={description}>
+{/* No og:image: the site default is a picture of the landing page, and recipe importers (Tandra's own too) take og:image as the dish's photo. */}
+<Layout title={`${recipe.title} recipe`} description={description} image={null}>
     <JsonLd schema={recipeSchema} />
 
     <article class="container recipe" aria-labelledby="recipe-title">
