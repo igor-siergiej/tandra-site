@@ -1,3 +1,10 @@
+## [1.11.3](https://github.com/igor-siergiej/tandra-site/compare/v1.11.2...v1.11.3) (2026-10-24)
+
+
+### Bug Fixes
+
+* **privacy:** describe Better Auth, Google sign-in and browser speech-to-text ([#18](https://github.com/igor-siergiej/tandra-site/issues/18)) ([736b25b](https://github.com/igor-siergiej/tandra-site/commit/736b25ba1001c3dba090a446a21265632d92394f))
+
 ## [1.11.2](https://github.com/igor-siergiej/tandra-site/compare/v1.11.1...v1.11.2) (2026-10-24)
 
 
