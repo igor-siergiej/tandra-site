@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/igor-siergiej/tandra-site/compare/v1.11.0...v1.11.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* recipe pages set no share image ([#16](https://github.com/igor-siergiej/tandra-site/issues/16)) ([e07a992](https://github.com/igor-siergiej/tandra-site/commit/e07a992891bcf533f68ce3f834d27c713013fcd8))
+
 # [1.11.0](https://github.com/igor-siergiej/tandra-site/compare/v1.10.0...v1.11.0) (2026-10-24)
 
 
