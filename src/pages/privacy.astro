@@ -37,9 +37,15 @@ const inventory = [
         why: 'Operational debugging and abuse response.',
     },
     {
+        category: 'Voice audio',
+        source: 'Your browser’s speech service (Google in Chrome, Apple in Safari)',
+        what: 'Microphone audio while voice input is listening. The browser turns it into text; Tandra never receives the audio.',
+        why: 'To turn speech into text for voice input.',
+    },
+    {
         category: 'Voice transcripts and AI requests',
         source: 'fal.ai',
-        what: 'Speech-to-text transcripts from voice input, recipe-import text, substitution/categorisation requests and image prompts.',
+        what: 'The text transcript of voice input (text only, no audio), recipe-import text, substitution/categorisation requests and image prompts.',
         why: 'To convert voice and links into structured items and recipes.',
     },
     {
@@ -96,19 +102,26 @@ const lawfulBasis = [
         notes: 'Off by default. A planned privacy update will prompt once and store the choice.',
     },
     {
-        purpose: 'Voice transcripts sent to fal.ai',
+        purpose: 'Voice audio sent to the browser’s speech service, and the transcript sent to fal.ai',
         basis: 'Consent (explicit, one-time prompt at first microphone use)',
-        notes: 'The microphone is not opened until the user accepts.',
+        notes: 'The microphone is not opened until the user accepts. The acknowledgement is stored on the device; clearing site data asks again.',
     },
 ];
 
 const processors = [
     {
         name: 'fal.ai',
-        role: 'Speech-to-text and generative models for voice input, recipe import, substitution, categorisation and image generation.',
+        role: 'Generative models that turn voice transcripts into items, and power recipe import, substitution, categorisation and image generation.',
         location: 'United States',
         transferMechanism: 'EU Standard Contractual Clauses and an executed DPA.',
-        data: 'Voice transcripts, recipe-import text, prompts derived from user content. No account credentials.',
+        data: 'Voice transcripts (text only, no audio), recipe-import text, prompts derived from user content. No account credentials.',
+    },
+    {
+        name: 'Your browser’s speech service (Google in Chrome, Apple in Safari)',
+        role: 'Speech-to-text for voice input, through the browser’s built-in Web Speech API. Chosen by your browser, not by Tandra.',
+        location: 'Depends on the browser vendor (United States for Google and Apple)',
+        transferMechanism: 'Governed by your browser vendor’s own privacy terms.',
+        data: 'Microphone audio while voice input is listening.',
     },
     {
         name: 'Cloudflare',
@@ -220,6 +233,13 @@ const storage = [
         kind: 'localStorage',
         purpose: 'Whether voice input stays open after a successful transcript.',
         lifetime: 'Until cleared by the user.',
+    },
+    {
+        name: 'tandra.voiceAck',
+        kind: 'localStorage',
+        purpose:
+            'Records that you have read the one-time voice input notice, so the microphone can open without showing it again.',
+        lifetime: 'Until cleared by the user; clearing it shows the notice again.',
     },
     {
         name: 'release-notes-seen',
