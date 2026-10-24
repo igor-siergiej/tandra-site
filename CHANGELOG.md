@@ -1,3 +1,10 @@
+## [1.11.2](https://github.com/igor-siergiej/tandra-site/compare/v1.11.1...v1.11.2) (2026-10-24)
+
+
+### Bug Fixes
+
+* **privacy:** name the browser speech service as the voice-input recipient ([#17](https://github.com/igor-siergiej/tandra-site/issues/17)) ([ea780be](https://github.com/igor-siergiej/tandra-site/commit/ea780bee3807e321d0e82458979c268b558153ad)), closes [#117](https://github.com/igor-siergiej/tandra-site/issues/117)
+
 ## [1.11.1](https://github.com/igor-siergiej/tandra-site/compare/v1.11.0...v1.11.1) (2026-10-24)
 
 
