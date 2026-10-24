@@ -34,6 +34,8 @@ test('a library recipe has its own page with Recipe JSON-LD, credit and a link i
         'href',
         /^https:\/\/app\.tandra\.uk\/discover\/[^/]+$/
     );
+    // Importers read og:image as the dish's photo; the site default would put the landing page in someone's recipe.
+    await expect(page.locator('meta[property="og:image"]')).toHaveCount(0);
 });
 
 test('the comparison table sits before the FAQ and links to it', async ({ page }) => {
