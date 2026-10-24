@@ -3,20 +3,26 @@ import Layout from '@/layouts/Layout.astro';
 
 export const prerender = true;
 
-const lastUpdated = '2026-10-22';
+const lastUpdated = '2026-10-24';
 
 const inventory = [
     {
         category: 'Account credentials',
-        source: 'kivo (the auth service)',
-        what: 'Username and argon2id password hash; refresh token held in an httpOnly cookie.',
+        source: 'Better Auth (in the Tandra API)',
+        what: 'Username and argon2id password hash, kept in the MongoDB user, account, session and verification collections. Password accounts get a placeholder <uuid>@users.invalid address instead of a real email; Google accounts keep the Google email address and display name.',
         why: 'To run the service for the account holder.',
     },
     {
         category: 'Session telemetry',
-        source: 'kivo',
-        what: 'Username on failed logins (no password). Sessions have a TTL.',
+        source: 'Better Auth (in the Tandra API)',
+        what: 'The client IP address and browser user agent stored with each session, and the client IP used as the rate-limit key for sign-in attempts (Cloudflare’s CF-Connecting-IP where the app runs behind Cloudflare). Sessions carry an expiry.',
         why: 'Abuse detection and session management.',
+    },
+    {
+        category: 'Google sign-in details',
+        source: 'Google',
+        what: 'The email address and display name Google returns for the account, stored on the Tandra user record, along with the Google sign-in tokens. Tandra never sees the Google password.',
+        why: 'To let people sign in with Google and attach that account to their Tandra username.',
     },
     {
         category: 'User data in MongoDB',
@@ -33,7 +39,7 @@ const inventory = [
     {
         category: 'Front-end logs',
         source: 'Loki',
-        what: 'userId, userAgent, URL and server-observed clientIp. No list-item text, recipe text or transcripts.',
+        what: 'userId, userAgent, URL and server-observed clientIp, plus the names of the lists, items and recipes people create and the username on sign-in attempts. Voice transcripts are not logged.',
         why: 'Operational debugging and abuse response.',
     },
     {
@@ -82,7 +88,7 @@ const inventory = [
 
 const lawfulBasis = [
     {
-        purpose: 'Running the service (lists, recipes, meal plans, sharing, push notifications)',
+        purpose: 'Running the service (sign-in, lists, recipes, meal plans, sharing, push notifications)',
         basis: 'Contract',
         notes: 'Processing is required to deliver what the account holder signed up for.',
     },
@@ -103,8 +109,8 @@ const lawfulBasis = [
     },
     {
         purpose: 'Voice audio sent to the browser’s speech service, and the transcript sent to fal.ai',
-        basis: 'Consent (explicit, one-time prompt at first microphone use)',
-        notes: 'The microphone is not opened until the user accepts. The acknowledgement is stored on the device; clearing site data asks again.',
+        basis: 'Consent (the user starts the microphone in the app)',
+        notes: 'Voice input only runs when the user turns it on, so the microphone is never opened on its own.',
     },
 ];
 
@@ -115,6 +121,14 @@ const processors = [
         location: 'United States',
         transferMechanism: 'EU Standard Contractual Clauses and an executed DPA.',
         data: 'Voice transcripts (text only, no audio), recipe-import text, prompts derived from user content. No account credentials.',
+    },
+    {
+        name: 'Google (sign-in)',
+        role: 'Sign-in with Google. Google checks the password and hands Tandra the account’s email address and display name.',
+        location: 'United States',
+        transferMechanism:
+            'Google’s own privacy terms for the Google account, and EU Standard Contractual Clauses for the sign-in data returned to Tandra.',
+        data: 'The email address and display name on the Google account. The Google password is never sent to Tandra.',
     },
     {
         name: 'Your browser’s speech service (Google in Chrome, Apple in Safari)',
@@ -198,10 +212,11 @@ const retention = [
 
 const storage = [
     {
-        name: 'kivo refresh-token cookie',
+        name: 'better-auth.session_token',
         kind: 'Strictly necessary cookie',
-        purpose: 'Holds the signed refresh token used to mint access tokens. httpOnly, Secure, SameSite=Strict.',
-        lifetime: 'Rolling; expires when the session ends or is revoked.',
+        purpose:
+            'Holds the Better Auth session id that keeps you signed in. httpOnly, so no script on the page can read it, and scoped to the app’s own origin.',
+        lifetime: 'Refreshed while the session is in use; expires when the session ends or is revoked.',
     },
     {
         name: 'tandra_app',
@@ -213,7 +228,45 @@ const storage = [
     {
         name: 'tandra:config',
         kind: 'localStorage',
-        purpose: 'Persisted UI preferences (e.g. tutorial completion flags).',
+        purpose:
+            'A cached copy of the app’s config.json (for example the analytics settings), so the app still launches when the network is unavailable.',
+        lifetime: 'Until cleared by the user.',
+    },
+    {
+        name: 'tandra:lastSeenVersion',
+        kind: 'localStorage',
+        purpose: 'The newest release whose notes you have already read, so the app only flags what is new.',
+        lifetime: 'Until cleared by the user.',
+    },
+    {
+        name: 'tandra:guest-mode',
+        kind: 'localStorage',
+        purpose: 'Whether guest mode is on, so a guest can refresh the page and still find their lists.',
+        lifetime: 'Until cleared by the user.',
+    },
+    {
+        name: 'tandra:sign-out-pending',
+        kind: 'localStorage',
+        purpose: 'Set while a sign-out has not reached the server, so the next launch finishes signing you out.',
+        lifetime: 'Until cleared by the user; removed once the sign-out completes.',
+    },
+    {
+        name: 'tandra:session-user',
+        kind: 'localStorage',
+        purpose:
+            'The id and username of the last person signed in, so an offline launch still knows who that was. No credential is stored here.',
+        lifetime: 'Until cleared by the user.',
+    },
+    {
+        name: 'tandra.voiceKeepListening',
+        kind: 'localStorage',
+        purpose: 'Whether voice input stays open after a successful transcript.',
+        lifetime: 'Until cleared by the user.',
+    },
+    {
+        name: 'tandra.groupByAisle',
+        kind: 'localStorage',
+        purpose: 'Whether list items are grouped by supermarket aisle.',
         lifetime: 'Until cleared by the user.',
     },
     {
@@ -229,22 +282,9 @@ const storage = [
         lifetime: 'Until cleared by the user.',
     },
     {
-        name: 'tandra.voiceKeepListening',
+        name: 'pwa-update-notified-at',
         kind: 'localStorage',
-        purpose: 'Whether voice input stays open after a successful transcript.',
-        lifetime: 'Until cleared by the user.',
-    },
-    {
-        name: 'tandra.voiceAck',
-        kind: 'localStorage',
-        purpose:
-            'Records that you have read the one-time voice input notice, so the microphone can open without showing it again.',
-        lifetime: 'Until cleared by the user; clearing it shows the notice again.',
-    },
-    {
-        name: 'release-notes-seen',
-        kind: 'localStorage',
-        purpose: 'Records which in-app release notes have already been shown.',
+        purpose: 'When the “app updated” notice was last shown, so it is not shown again straight away.',
         lifetime: 'Until cleared by the user.',
     },
     {
