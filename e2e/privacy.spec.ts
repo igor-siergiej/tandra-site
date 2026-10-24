@@ -51,6 +51,8 @@ test('Google sign-in is listed as a processor and as a data source @smoke', asyn
     await expect(source).toContainText(/never sees the Google password/i);
 });
 
+// Standing guard: the browser does the speech-to-text and fal.ai only ever sees the text. The wording
+// was already correct, so this test passes on the old notice too — it exists to keep it that way.
 test('voice input is transcribed by the browser and fal.ai only receives text @smoke', async ({ page }) => {
     await page.goto('/privacy');
 
@@ -79,6 +81,12 @@ test('the storage table lists the Better Auth session cookie and the local stora
     for (const key of LOCAL_STORAGE_KEYS) {
         await expect(storage.getByRole('row', { name: new RegExp(`^${key}\\b`) })).toHaveCount(1);
     }
+
+    // The table is the whole device-storage inventory: a key the app no longer writes, or one it now
+    // writes that the notice has not caught up with, has to fail here rather than sit unnoticed.
+    await expect(storage.getByRole('row').filter({ hasText: 'localStorage' })).toHaveCount(
+        LOCAL_STORAGE_KEYS.length + 1
+    );
 
     // Keys the app no longer writes.
     await expect(storage).not.toContainText('tandra.voiceAck');

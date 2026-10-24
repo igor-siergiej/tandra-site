@@ -15,13 +15,13 @@ const inventory = [
     {
         category: 'Session telemetry',
         source: 'Better Auth (in the Tandra API)',
-        what: 'Client IP address (Cloudflare’s CF-Connecting-IP where the app runs behind Cloudflare) and the username on failed sign-ins (never the password). Sessions expire on their own.',
+        what: 'The client IP address and browser user agent stored with each session, and the client IP used as the rate-limit key for sign-in attempts (Cloudflare’s CF-Connecting-IP where the app runs behind Cloudflare). Sessions carry an expiry.',
         why: 'Abuse detection and session management.',
     },
     {
         category: 'Google sign-in details',
         source: 'Google',
-        what: 'The email address and display name Google returns for the account, stored on the Tandra user record. Tandra never sees the Google password.',
+        what: 'The email address and display name Google returns for the account, stored on the Tandra user record, along with the Google sign-in tokens. Tandra never sees the Google password.',
         why: 'To let people sign in with Google and attach that account to their Tandra username.',
     },
     {
@@ -39,7 +39,7 @@ const inventory = [
     {
         category: 'Front-end logs',
         source: 'Loki',
-        what: 'userId, userAgent, URL and server-observed clientIp. No list-item text, recipe text or transcripts.',
+        what: 'userId, userAgent, URL and server-observed clientIp, plus the names of the lists, items and recipes people create and the username on sign-in attempts. Voice transcripts are not logged.',
         why: 'Operational debugging and abuse response.',
     },
     {
@@ -109,8 +109,8 @@ const lawfulBasis = [
     },
     {
         purpose: 'Voice audio sent to the browser’s speech service, and the transcript sent to fal.ai',
-        basis: 'Consent (explicit, one-time prompt at first microphone use)',
-        notes: 'The microphone is not opened until the user accepts. The acknowledgement is stored on the device; clearing site data asks again.',
+        basis: 'Consent (the user starts the microphone in the app)',
+        notes: 'Voice input only runs when the user turns it on, so the microphone is never opened on its own.',
     },
 ];
 
@@ -249,6 +249,13 @@ const storage = [
         kind: 'localStorage',
         purpose: 'Set while a sign-out has not reached the server, so the next launch finishes signing you out.',
         lifetime: 'Until cleared by the user; removed once the sign-out completes.',
+    },
+    {
+        name: 'tandra:session-user',
+        kind: 'localStorage',
+        purpose:
+            'The id and username of the last person signed in, so an offline launch still knows who that was. No credential is stored here.',
+        lifetime: 'Until cleared by the user.',
     },
     {
         name: 'tandra.voiceKeepListening',
@@ -537,10 +544,6 @@ const rights = [
                 Cookies are kept to the minimum: one strictly necessary for authentication, and one that sends
                 returning users from this landing page straight to the app. Everything else is local storage on the
                 user’s device, which the user can clear at any time.
-            </p>
-            <p>
-                The app also caches the id and username of the last person signed in on the device, so an offline
-                launch still knows who that was.
             </p>
             <div class="table-wrap">
                 <table class="data-table">
