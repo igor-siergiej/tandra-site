@@ -15,3 +15,6 @@ infra/.terraform/
 infra/*.tfstate
 infra/*.tfstate.*
 infra/*.tfvars
+
+# Raw demo-clip recordings (content/clips/record.ts); only the encoded public/clips/ files are committed.
+content/clips/raw/

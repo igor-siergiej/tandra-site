@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Aisle from '@/components/Aisle.astro';
+import Clip from '@/components/Clip.astro';
 import JsonLd from '@/components/JsonLd.astro';
 import Phone from '@/components/Phone.astro';
 import { siteConfig } from '@/config/site';
@@ -92,6 +93,25 @@ const steps = [
     'Paste it into Tandra, or share the page to Tandra from your browser.',
     'Check the ingredients and method it found, then save.',
     'Tick the ingredients you need and add them to a list.',
+];
+
+/** Short screen recordings from content/clips/record.ts, encoded into public/clips/ by content/clips/build.sh. */
+const clips = [
+    {
+        name: 'import',
+        title: 'Import a recipe from a link',
+        label: 'Screen recording: pasting a recipe link into Tandra, which fills in the ingredients and method.',
+    },
+    {
+        name: 'plan',
+        title: 'Plan the week',
+        label: 'Screen recording: planning three dinners for next week and sending their ingredients to the Groceries list.',
+    },
+    {
+        name: 'shop',
+        title: 'Shop together',
+        label: 'Screen recording: ticking items off the Groceries list while an item added on another phone appears live.',
+    },
 ];
 
 const reasons = [
@@ -274,6 +294,20 @@ const faqSchema = {
                 {steps.map((step) => <li>{step}</li>)}
             </ol>
         </div>
+    </section>
+
+    <section class="container clips" aria-labelledby="clips-title">
+        <h2 id="clips-title">See it in use</h2>
+        <ul class="clip-list">
+            {
+                clips.map((clip) => (
+                    <li>
+                        <Clip name={clip.name} label={clip.label} />
+                        <h3>{clip.title}</h3>
+                    </li>
+                ))
+            }
+        </ul>
     </section>
 
     <section class="container split" aria-labelledby="open-title">
@@ -560,6 +594,32 @@ const faqSchema = {
         font-weight: 700;
         line-height: 1;
         color: var(--sprout);
+    }
+
+    .clips {
+        padding-top: 6rem;
+    }
+
+    .clip-list {
+        display: grid;
+        gap: 3rem;
+        margin: 2.5rem 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    @media (min-width: 760px) {
+        .clip-list {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+    }
+
+    .clip-list h3 {
+        margin: 1.25rem 0 0;
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        text-align: center;
     }
 
     .split {
