@@ -34,3 +34,31 @@ test('FAQ answers open on click', async ({ page }) => {
 
     await expect(page.getByText(/tick items off with no connection/)).toBeVisible();
 });
+
+test('demo clips load on demand, never autoplay, and both sources resolve', async ({ page, request }) => {
+    await page.goto('/');
+
+    const videos = page.getByRole('region', { name: 'See it in use' }).locator('video');
+    await expect(videos).toHaveCount(3);
+
+    for (const name of ['import', 'plan', 'shop']) {
+        const video = page.locator(`video[poster="/clips/${name}.webp"]`);
+        await expect(video).toHaveAttribute('preload', 'metadata');
+        await expect(video).toHaveAttribute('controls', '');
+        await expect(video).not.toHaveAttribute('autoplay');
+        expect(await video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(true);
+
+        const sources = await video
+            .locator('source')
+            .evaluateAll((els) => els.map((el) => [el.getAttribute('src'), el.getAttribute('type')]));
+        expect(sources).toEqual([
+            [`/clips/${name}.webm`, 'video/webm'],
+            [`/clips/${name}.mp4`, 'video/mp4'],
+        ]);
+        for (const path of [`/clips/${name}.webm`, `/clips/${name}.mp4`, `/clips/${name}.webp`]) {
+            const response = await request.get(path);
+            expect(response.status(), path).toBe(200);
+            expect((await response.body()).length, path).toBeLessThanOrEqual(2 * 1024 * 1024);
+        }
+    }
+});

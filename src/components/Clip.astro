@@ -1,0 +1,49 @@
+---
+interface Props {
+    /** Basename of the encoded clip in public/clips/ (content/clips/build.sh writes <name>.webm, .mp4 and .webp). */
+    name: string;
+    /** What the clip shows, read out in place of the video. */
+    label: string;
+}
+
+const { name, label } = Astro.props;
+---
+
+<figure class="clip">
+    <video
+        controls
+        preload="metadata"
+        playsinline
+        poster={`/clips/${name}.webp`}
+        width="390"
+        height="844"
+        aria-label={label}
+    >
+        <source src={`/clips/${name}.webm`} type="video/webm" />
+        <source src={`/clips/${name}.mp4`} type="video/mp4" />
+    </video>
+</figure>
+
+<style>
+    /* Same frame as Phone.astro, so the clips sit alongside the screenshots. */
+    .clip {
+        width: min(100%, 17rem);
+        margin: 0 auto;
+        padding: 0.5rem;
+        border-radius: 2.3rem;
+        background: var(--ink);
+        box-shadow:
+            0 1px 0 1px oklch(0 0 0 / 0.08),
+            0 30px 60px -30px oklch(0.3 0.05 40 / 0.45);
+    }
+
+    .clip video {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 390 / 844;
+        border-radius: 1.8rem;
+        background: var(--ink);
+        object-fit: cover;
+    }
+</style>

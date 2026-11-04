@@ -102,6 +102,17 @@ so it loads on the visitor's first scroll, tap or key press rather than with the
 - App screenshots in `src/assets/screens` are captured from the live app on a phone-sized viewport (390x844 @3x),
   signed in as the `samtandra` demo account (lists shared with `alextandra` and `jotandra`). Each has a `-dark`
   twin captured in the app's dark theme; `Phone.astro` serves it when the visitor's system is in dark mode.
+- The homepage's demo clips (`public/clips/{import,plan,shop}.{webm,mp4,webp}`, shown by `Clip.astro`) are recorded
+  from the live app as the same `samtandra` account (Bitwarden `creds.smoke.tandra`) on a 390x844 @2x phone, then
+  encoded. Every change a clip makes is undone afterwards, so the account stays as the screenshots expect.
+  Each clip must stay under 30 s and each video under 2 MiB; `build.sh` fails otherwise.
+
+  ```sh
+  TANDRA_DEMO_USER=samtandra TANDRA_DEMO_PASSWORD=… bun content/clips/record.ts   # all three, or name some
+  content/clips/build.sh                                                           # needs ffmpeg and jq
+  ```
+
+  `record.ts` writes timed frames to `content/clips/raw/` (gitignored); commit only the files in `public/clips/`.
 
 ## Credits
 
