@@ -1,0 +1,36 @@
+{
+  "repoName": "tandra-site",
+  "releaseNotes": true,
+  "dev": {
+    "startCommand": "bun run dev",
+    "healthCheckUrl": "http://localhost:4321"
+  },
+  "e2e": {
+    "testCommand": "bun run test:e2e",
+    "smokeGrep": "@smoke",
+    "configPath": "playwright.config.ts"
+  },
+  "ci": {
+    "workflowNames": [
+      "PR Checks"
+    ],
+    "checkNamesRequired": [
+      "lint",
+      "test",
+      "fallow"
+    ]
+  },
+  "deploy": {
+    "workflowName": "CI/CD"
+  },
+  "environments": {
+    "production": {
+      "baseUrl": "https://tandra.uk"
+    }
+  },
+  "targetEnvironment": "production",
+  "github": {
+    "defaultBranch": "main",
+    "mergeMethod": "squash"
+  }
+}

@@ -46,6 +46,9 @@ so run `bun run build` first. CI also runs `bunx astro sync`, `tsc --noEmit` and
 `bun run typecheck` (`astro check`). Vitest covers `src/**/*.test.ts`; Playwright covers `e2e/*.spec.ts`
 (`@smoke` specs also run against production after a deploy).
 
+Factory configuration is tracked in `jott-config.json` on `main` so both new card
+worktrees and trusted-base shipping stages read the same project settings.
+
 ## Environment
 
 | Name | Where | Purpose |
