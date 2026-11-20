@@ -194,8 +194,8 @@ const retention = [
     },
     {
         item: 'Account data and content',
-        period: 'Until the user closes their account',
-        source: 'A planned privacy update will add account deletion (typed confirmation) and data export.',
+        period: 'Until the user deletes their account',
+        source: 'Deletion is immediate: nothing is kept for a grace period. Server logs mention user ids, are not touched by the deletion and expire under the log retention above.',
     },
     {
         item: 'Umami aggregate analytics',
@@ -270,6 +270,27 @@ const storage = [
         lifetime: 'Until cleared by the user.',
     },
     {
+        name: 'umami.disabled',
+        kind: 'localStorage',
+        purpose:
+            'Set to "true" when you turn Usage statistics off in Settings and removed when you turn them on again. Opts you out of Umami usage statistics. Stays on your device and is never sent to a server.',
+        lifetime: 'Until cleared by the user; no expiry.',
+    },
+    {
+        name: 'tandra.replayConsent',
+        kind: 'localStorage',
+        purpose:
+            '"true" or "false": your choice on session recordings, off by default. Remembers your consent to Umami session replay. Stays on your device and is never sent to a server.',
+        lifetime: 'Until cleared by the user; no expiry.',
+    },
+    {
+        name: 'tandra.analyticsPromptSeen',
+        kind: 'localStorage',
+        purpose:
+            'Set to "true" once you dismissed or answered the first-run analytics prompt, so it is shown only once. Stays on your device and is never sent to a server.',
+        lifetime: 'Until cleared by the user; no expiry.',
+    },
+    {
         name: 'theme',
         kind: 'localStorage',
         purpose: 'User-chosen colour theme (light / dark / system).',
@@ -300,7 +321,7 @@ const rights = [
     { right: 'Rectification', what: 'Correction of inaccurate or incomplete data.' },
     {
         right: 'Erasure',
-        what: 'Deletion of your account and associated content (lists, recipes, photos, friendships, publications). Account deletion will require a typed confirmation and is being added in a planned privacy update.',
+        what: 'You can delete your account yourself in Settings → Account → Delete my account, by typing your username to confirm. It takes effect at once: your lists, recipes, todos, meal plans, labels, friends, photos, notification subscriptions and sign-in details are deleted, and any recipe you published to Discover is taken down. Lists, recipes, todos and meal plans you own are deleted for everyone they were shared with; ones other people own stay with them, without you. Copies of a published recipe that other people already added to their own recipes stay theirs.',
     },
     { right: 'Restriction', what: 'Pausing processing while a complaint or query is resolved.' },
     {
