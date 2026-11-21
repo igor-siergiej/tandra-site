@@ -1,9 +1,12 @@
 ---
+type JsonValue = string | number | boolean | null | undefined | JsonValue[] | { [key: string]: JsonValue };
+
 interface Props {
-    schema: Record<string, unknown>;
+    schema: { [key: string]: JsonValue };
 }
 
 const { schema } = Astro.props;
+
 // Recipe pages carry text from the public Discover API, including user-published recipes. `<` is escaped so a value
 // containing `</script>` can't end the element early; JSON parsers read `\u003c` back as `<`.
 const json = JSON.stringify({ '@context': 'https://schema.org', ...schema }).replaceAll('<', '\\u003c');

@@ -41,6 +41,7 @@ export const siteConfig = {
      * LocalBusiness JSON-LD instead of generic Organization — leave undefined
      * for a non-local-business content site.
      */
+    // SAFETY: undefined is a valid member; the union lets deployments supply a business configuration.
     business: undefined as LocalBusinessConfig | undefined,
     appUrl: 'https://app.tandra.uk',
     /**
@@ -82,5 +83,5 @@ export const siteConfig = {
             question: 'Can I run my own copy?',
             answer: 'Yes. The repository includes a Docker Compose file that starts the whole stack on your own server.',
         },
-    ] as { question: string; answer: string }[],
+    ] satisfies { question: string; answer: string }[],
 };

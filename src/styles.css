@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "@fontsource-variable/bricolage-grotesque";
-@import "@fontsource-variable/montserrat";
+@import 'tailwindcss';
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/montserrat';
 
 /* Palette taken from the Tandra app's own tokens so the site and the app read as one product. */
 :root {
@@ -32,8 +32,8 @@
 }
 
 @theme inline {
-    --font-sans: "Montserrat Variable", system-ui, sans-serif;
-    --font-display: "Bricolage Grotesque Variable", "Montserrat Variable", sans-serif;
+    --font-sans: 'Montserrat Variable', system-ui, sans-serif;
+    --font-display: 'Bricolage Grotesque Variable', 'Montserrat Variable', sans-serif;
     --color-background: var(--paper);
     --color-foreground: var(--ink);
     --color-primary: var(--forest);

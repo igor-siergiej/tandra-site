@@ -17,17 +17,17 @@ bootstrap steps: [infra/README.md](infra/README.md).
 
 ## Stack
 
-| Concern | Choice |
-|---------|--------|
-| Runtime / package manager | Bun |
-| Framework | Astro 7 (static output) |
-| UI | Astro components, Tailwind v4, Bricolage Grotesque + Montserrat (self-hosted) |
-| Lint / format | Biome |
-| Hooks | Husky + lint-staged + commitlint (Conventional Commits) |
-| Release | semantic-release |
-| Dead code | Fallow |
-| CI | GitHub Actions (`.github/workflows`) |
-| Infra | Terraform (`infra/`) — S3 + CloudFront + GitHub OIDC, no servers |
+| Concern                   | Choice                                                                        |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| Runtime / package manager | Bun                                                                           |
+| Framework                 | Astro 7 (static output)                                                       |
+| UI                        | Astro components, Tailwind v4, Bricolage Grotesque + Montserrat (self-hosted) |
+| Lint / format             | Oxlint + Oxfmt via `@imapps/oxc-config`                                       |
+| Hooks                     | Husky + lint-staged + commitlint (Conventional Commits)                       |
+| Release                   | semantic-release                                                              |
+| Dead code                 | Fallow                                                                        |
+| CI                        | GitHub Actions (`.github/workflows`)                                          |
+| Infra                     | Terraform (`infra/`) — S3 + CloudFront + GitHub OIDC, no servers              |
 
 ## Commands
 
@@ -35,7 +35,10 @@ bootstrap steps: [infra/README.md](infra/README.md).
 bun run dev            # dev server, :4321
 bun run build          # static build -> dist/
 bun run preview        # preview the static build
-bun run lint           # biome check
+bun run lint           # read-only Oxlint (warnings fail) + Oxfmt check
+bun run lint:fix       # safe lint fixes, then formatting
+bun run format         # formatting only, writes supported files
+bun run format:check   # read-only formatting check
 bun run test           # vitest
 bun run test:e2e       # playwright
 ```
@@ -49,15 +52,54 @@ so run `bun run build` first. CI also runs `bunx astro sync`, `tsc --noEmit` and
 Factory configuration is tracked in `jott-config.json` on `main` so both new card
 worktrees and trusted-base shipping stages read the same project settings.
 
+### Tooling requirements and coverage
+
+Use Bun **1.4.4 or newer** (`packageManager` pins 1.4.4) and Node.js **22.22.0 or newer**
+(Astro's minimum; verified with Node 24.22.1). Install with `bun install --frozen-lockfile`.
+Node must be on `PATH`: Oxlint's JavaScript configuration and shared anti-slop plugin run through Node,
+not Bun's experimental Node compatibility.
+
+Both `oxlint.config.mjs` and `.oxfmtrc.mjs` import the published **`@imapps/oxc-config` 7.0.1**
+presets, not local copies. Its registry peer ranges are `oxlint` / `@oxlint/plugins >=1.90.0 <2`
+and `oxfmt >=0.75.0 <1`; we pin **1.93.0 / 1.93.0 / 0.78.0**, respectively, from that release's
+package metadata. When upgrading, inspect `bun info @imapps/oxc-config` or `npm view @imapps/oxc-config`
+and use its current peer requirements rather than README version examples.
+
+`lint` never writes. `lint:fix` runs two safe Oxlint fix passes because native `prefer-const`
+and shared anti-slop spacing fixes can overlap, then runs Oxfmt; remaining diagnostics fail the command.
+`format` does not fix lint errors. Run `format:check` twice after formatting to check stability.
+Husky's existing pre-commit hook runs lint-staged: JavaScript/TypeScript files get lint fixes and
+formatting, Astro files get lint fixes only, and supported data/style/document files get formatting.
+Both lint CI jobs already run `bun run lint`, so they now check both shared presets.
+
+Project-specific single-declarator, const/template and equality rules remain enabled; the source
+exceptions for unused variables, explicit `any` and non-null assertions, and test `any` exceptions remain.
+The shared formatter preserves four-space code, two-space JSON, single quotes, semicolons, ES5 trailing
+commas and import sorting; YAML stays two-space.
+
+Coverage is not a substitute for `astro check`:
+
+- Oxlint checks JS/TS and extracts **Astro frontmatter and script blocks**, but does **not** lint Astro
+  template expressions or HTML/accessibility semantics. Astro import organization remains unsupported.
+- Oxfmt checks JS/TS, JSON, CSS, Markdown, YAML and other built-in supported formats. **Astro formatting
+  is disabled by default** in Oxfmt 0.78 and is not enabled here: its optional Astro parser requires
+  `@astrojs/compiler-rs` and a separate opt-in. An explicit Astro-only format command reports no targets.
+  Edit Astro templates manually and use `bun run typecheck` and the existing Playwright specs.
+- Oxlint does not lint CSS/JSON/Markdown; former CSS at-rule / `!important` and HTML-ID lint exceptions
+  have no equivalent coverage here. Terraform/HCL, images and generated lockfiles are not formatter targets.
+- `dist/`, `.astro/`, dependency trees, test reports, Terraform caches and factory artifacts are excluded.
+  Oxfmt also respects `.gitignore`; pipeline-owned workflows, `jott-config.json` and the frozen
+  `src/lib/tooling.test.ts` are excluded from rewriting. They are not generated app source.
+
 ## Environment
 
-| Name | Where | Purpose |
-|------|-------|---------|
-| `SITE_URL` | `.env` / GitHub repo variable | Astro `site` (canonical, OG, sitemap). Unset falls back to `http://localhost:4321`. |
-| `DISCOVER_API_URL` | `.env` (optional) | Origin of the public Discover API the recipe pages are built from. Unset falls back to `https://app.tandra.uk`. |
-| `S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`, `AWS_DEPLOY_ROLE_ARN`, `AWS_REGION` | GitHub repo variables | Deploy job in `ci-cd.yml` (from `terraform output`). |
-| `AWS_TERRAFORM_ROLE_ARN` | GitHub repo variable | `terraform.yml` plan/apply. |
-| `CLOUDFLARE_API_TOKEN` | GitHub repo secret | `terraform.yml` plan/apply: the `tandra.uk` records in `infra/dns.tf` and `infra/acm.tf`. Scope: Zone:Read + DNS:Edit on `tandra.uk` only. |
+| Name                                                                           | Where                         | Purpose                                                                                                                                    |
+| ------------------------------------------------------------------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SITE_URL`                                                                     | `.env` / GitHub repo variable | Astro `site` (canonical, OG, sitemap). Unset falls back to `http://localhost:4321`.                                                        |
+| `DISCOVER_API_URL`                                                             | `.env` (optional)             | Origin of the public Discover API the recipe pages are built from. Unset falls back to `https://app.tandra.uk`.                            |
+| `S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`, `AWS_DEPLOY_ROLE_ARN`, `AWS_REGION` | GitHub repo variables         | Deploy job in `ci-cd.yml` (from `terraform output`).                                                                                       |
+| `AWS_TERRAFORM_ROLE_ARN`                                                       | GitHub repo variable          | `terraform.yml` plan/apply.                                                                                                                |
+| `CLOUDFLARE_API_TOKEN`                                                         | GitHub repo secret            | `terraform.yml` plan/apply: the `tandra.uk` records in `infra/dns.tf` and `infra/acm.tf`. Scope: Zone:Read + DNS:Edit on `tandra.uk` only. |
 
 ## Analytics
 

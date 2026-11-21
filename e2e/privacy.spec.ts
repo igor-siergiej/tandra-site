@@ -98,6 +98,7 @@ test('the notice is dated after the auth rewrite', async ({ page }) => {
 
     const updated = await page.locator('.updated').textContent();
     const date = updated?.match(/(\d{4}-\d{2}-\d{2})/)?.[1];
+
     if (!date) throw new Error(`no last-updated date in "${updated ?? ''}"`);
     // A notice that predates the Better Auth / Google rewrite would still describe the old stack.
     expect(date.localeCompare('2026-10-24')).toBeGreaterThanOrEqual(0);
