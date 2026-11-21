@@ -40,15 +40,12 @@ bun run lint:fix       # safe lint fixes, then formatting
 bun run format         # formatting only, writes supported files
 bun run format:check   # read-only formatting check
 bun run test           # vitest
-bun run test:e2e       # install matching Chromium if missing, then run Playwright
+bun run test:e2e       # playwright
 ```
 
 Dev server needs no env, but every build (dev included) fetches the recipe pages from the app's public
 Discover API, so it needs network access. `bun run test:e2e` serves the existing `dist/` via `bun run preview`,
-so run `bun run build` first. The command provisions Playwright's matching Chromium in the current user's
-browser cache, including in isolated factory jobs; the first run needs download access. Linux hosts still need
-Playwright's system libraries (`bunx playwright install --with-deps chromium`; already done by GitHub Actions).
-CI also runs `bunx astro sync`, `tsc --noEmit` and
+so run `bun run build` first. CI also runs `bunx astro sync`, `tsc --noEmit` and
 `bun run typecheck` (`astro check`). Vitest covers `src/**/*.test.ts`; Playwright covers `e2e/*.spec.ts`
 (`@smoke` specs also run against production after a deploy).
 

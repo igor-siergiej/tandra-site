@@ -7,7 +7,6 @@
   and `format:check` to verify formatting. Pre-commit hooks use the same configuration.
 - Require Bun 1.4.4+ and Node 22.22.0+; pin Oxlint / `@oxlint/plugins` 1.93.0 and Oxfmt 0.78.0 to the
   shared release's published peer requirements. Document partial Astro linting and the Astro formatting boundary.
-- Provision the matching Playwright Chromium before end-to-end tests so isolated jobs do not fail on an empty browser cache.
 
 ## [1.11.3](https://github.com/igor-siergiej/tandra-site/compare/v1.11.2...v1.11.3) (2026-10-24)
 
