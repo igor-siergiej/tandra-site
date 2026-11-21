@@ -12,7 +12,6 @@ self.addEventListener('activate', (event) => {
             await Promise.all(keys.map((key) => caches.delete(key)));
             await self.registration.unregister();
             const windows = await self.clients.matchAll({ type: 'window' });
-
             for (const client of windows) {
                 client.navigate(client.url);
             }

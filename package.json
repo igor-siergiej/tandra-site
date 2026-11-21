@@ -6,11 +6,6 @@
     "type": "git",
     "url": "https://github.com/igor-siergiej/tandra-site"
   },
-  "engines": {
-    "node": ">=22.22.0",
-    "bun": ">=1.4.4"
-  },
-  "packageManager": "bun@1.4.4",
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
@@ -27,29 +22,22 @@
     "astro": "astro",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "lint": "oxlint -c oxlint.config.mjs --deny-warnings . && oxfmt -c .oxfmtrc.mjs --check .",
-    "lint:fix": "node scripts/lint-fix.mjs && oxfmt -c .oxfmtrc.mjs --write .",
-    "format": "oxfmt -c .oxfmtrc.mjs --write .",
-    "format:check": "oxfmt -c .oxfmtrc.mjs --check .",
+    "lint": "biome check .",
+    "lint:fix": "biome check --fix .",
+    "format": "biome format --write .",
     "audit": "fallow-audit",
     "prepare": "husky",
     "release": "semantic-release",
     "typecheck": "astro check"
   },
   "lint-staged": {
-    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": [
-      "node scripts/lint-fix.mjs",
-      "oxfmt -c .oxfmtrc.mjs --write"
-    ],
-    "*.astro": "node scripts/lint-fix.mjs",
-    "*.{json,jsonc,css,scss,less,html,vue,yaml,yml,md,mdx,graphql,gql}": "oxfmt -c .oxfmtrc.mjs --write"
+    "*.{ts,tsx,astro,json}": "biome check --fix"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@biomejs/biome": "2.2.5",
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
-    "@imapps/oxc-config": "7.0.1",
-    "@oxlint/plugins": "1.93.0",
     "@playwright/test": "^1.62.0",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
@@ -59,8 +47,6 @@
     "@types/node": "^26.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.2.0",
-    "oxfmt": "0.78.0",
-    "oxlint": "1.93.0",
     "semantic-release": "^25.0.8",
     "typescript": "^5.7.0",
     "vitest": "^4.1.10"

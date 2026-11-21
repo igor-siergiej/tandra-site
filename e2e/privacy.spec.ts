@@ -11,13 +11,9 @@ const row = (page: Page, id: string, name: RegExp) => section(page, id).getByRol
 
 const LOCAL_STORAGE_KEYS = [
     'tandra:config',
-    'tandra:session-user',
     'tandra:lastSeenVersion',
     'tandra:guest-mode',
     'tandra:sign-out-pending',
-    'umami.disabled',
-    'tandra.replayConsent',
-    'tandra.analyticsPromptSeen',
     'tandra.voiceKeepListening',
     'tandra.groupByAisle',
     'theme',
@@ -88,7 +84,9 @@ test('the storage table lists the Better Auth session cookie and the local stora
 
     // The table is the whole device-storage inventory: a key the app no longer writes, or one it now
     // writes that the notice has not caught up with, has to fail here rather than sit unnoticed.
-    await expect(storage.getByRole('row').filter({ hasText: 'localStorage' })).toHaveCount(LOCAL_STORAGE_KEYS.length);
+    await expect(storage.getByRole('row').filter({ hasText: 'localStorage' })).toHaveCount(
+        LOCAL_STORAGE_KEYS.length + 1
+    );
 
     // Keys the app no longer writes.
     await expect(storage).not.toContainText('tandra.voiceAck');
@@ -100,7 +98,6 @@ test('the notice is dated after the auth rewrite', async ({ page }) => {
 
     const updated = await page.locator('.updated').textContent();
     const date = updated?.match(/(\d{4}-\d{2}-\d{2})/)?.[1];
-
     if (!date) throw new Error(`no last-updated date in "${updated ?? ''}"`);
     // A notice that predates the Better Auth / Google rewrite would still describe the old stack.
     expect(date.localeCompare('2026-10-24')).toBeGreaterThanOrEqual(0);

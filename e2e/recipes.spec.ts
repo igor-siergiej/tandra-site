@@ -20,11 +20,9 @@ test('a library recipe has its own page with Recipe JSON-LD, credit and a link i
     await expect(page).toHaveURL(new RegExp(`${href}$`));
 
     const title = await page.getByRole('heading', { level: 1 }).textContent();
-
     const schemas = await page
         .locator('script[type="application/ld+json"]')
         .evaluateAll((nodes) => nodes.map((node) => JSON.parse(node.textContent ?? '{}')));
-
     const recipe = schemas.find((schema) => schema['@type'] === 'Recipe');
     expect(recipe).toMatchObject({ name: title?.trim(), license: expect.stringMatching(/^https:\/\//) });
     expect(recipe.recipeIngredient.length).toBeGreaterThan(0);
