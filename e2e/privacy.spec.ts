@@ -88,9 +88,7 @@ test('the storage table lists the Better Auth session cookie and the local stora
 
     // The table is the whole device-storage inventory: a key the app no longer writes, or one it now
     // writes that the notice has not caught up with, has to fail here rather than sit unnoticed.
-    await expect(storage.getByRole('row').filter({ hasText: 'localStorage' })).toHaveCount(
-        LOCAL_STORAGE_KEYS.length + 1
-    );
+    await expect(storage.getByRole('row').filter({ hasText: 'localStorage' })).toHaveCount(LOCAL_STORAGE_KEYS.length);
 
     // Keys the app no longer writes.
     await expect(storage).not.toContainText('tandra.voiceAck');
