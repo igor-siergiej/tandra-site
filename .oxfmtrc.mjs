@@ -17,6 +17,8 @@ export default defineConfig({
         'src/lib/tooling.test.ts',
         '.github/workflows/**',
         'jott-config.json',
+        // Generated and committed by semantic-release (see .releaserc.json) with `*` bullets.
+        'CHANGELOG.md',
     ],
     overrides: [...shared.overrides, { files: ['**/*.{yml,yaml}'], options: { tabWidth: 2 } }],
 });

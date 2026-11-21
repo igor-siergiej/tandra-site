@@ -93,6 +93,10 @@ Coverage is not a substitute for `astro check`:
 - `dist/`, `.astro/`, dependency trees, test reports, Terraform caches and factory artifacts are excluded.
   Oxfmt also respects `.gitignore`; pipeline-owned workflows, `jott-config.json` and the frozen
   `src/lib/tooling.test.ts` are excluded from rewriting. They are not generated app source.
+- `CHANGELOG.md` is generated and committed by semantic-release (see `.releaserc.json`) with `*` bullets,
+  so it is excluded from Oxfmt; formatting it would make the next release fail `bun run lint`.
+- CI lint jobs set up Node 22.22.0 (`actions/setup-node`) alongside Bun, so Oxlint's JS config runs on
+  the required Node version.
 
 ## Environment
 
