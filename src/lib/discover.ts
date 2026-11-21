@@ -46,7 +46,10 @@ export interface DiscoverRecipe extends DiscoverRecipeSummary {
 const getJson = async <T>(path: string): Promise<T> => {
     const url = `${API_BASE}${path}`;
     const response = await fetch(url, { headers: { accept: 'application/json' } });
+
     if (!response.ok) throw new Error(`Discover API ${url} answered ${response.status}`);
+
+    // SAFETY: callers select the response DTO for the matching Discover API route above.
     return (await response.json()) as T;
 };
 
@@ -56,7 +59,9 @@ const loadRecipes = async (): Promise<DiscoverRecipe[]> => {
     const page = await getJson<{ items: DiscoverRecipeSummary[] }>(
         `/api/public/discover/recipes?pageSize=${RECIPE_PAGE_COUNT}`
     );
+
     const slugs = page.items.flatMap((item) => (item.slug ? [item.slug] : []));
+
     return Promise.all(
         slugs.map((slug) => getJson<DiscoverRecipe>(`/api/public/discover/recipes/${encodeURIComponent(slug)}`))
     );
@@ -65,6 +70,7 @@ const loadRecipes = async (): Promise<DiscoverRecipe[]> => {
 /** The recipes that get a page, fetched once per build and shared by the index and the per-recipe pages. */
 export const getRecipes = (): Promise<DiscoverRecipe[]> => {
     recipes ??= loadRecipes();
+
     return recipes;
 };
 
@@ -72,6 +78,7 @@ export const getRecipes = (): Promise<DiscoverRecipe[]> => {
 export const isoDuration = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
     const rest = Math.round(minutes % 60);
+
     return `PT${hours ? `${hours}H` : ''}${rest || !hours ? `${rest}M` : ''}`;
 };
 
@@ -79,16 +86,20 @@ export const isoDuration = (minutes: number): string => {
 export const readableDuration = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
     const rest = Math.round(minutes % 60);
+
     return [hours && `${hours} hr`, (rest || !hours) && `${rest} min`].filter(Boolean).join(' ');
 };
 
 /** Keyed by the fractional part as `toFixed(2)` prints it. */
-const FRACTIONS: Record<string, string> = { '0.25': '¼', '0.33': '⅓', '0.50': '½', '0.67': '⅔', '0.75': '¾' };
+const FRACTIONS = { '0.25': '¼', '0.33': '⅓', '0.50': '½', '0.67': '⅔', '0.75': '¾' } satisfies Record<string, string>;
 
 const readableQuantity = (quantity: number): string => {
     const whole = Math.floor(quantity);
-    const fraction = FRACTIONS[(quantity - whole).toFixed(2)];
+    // SAFETY: this read-only lookup accepts missing keys; the truthiness check below handles undefined.
+    const fraction = FRACTIONS[(quantity - whole).toFixed(2) as keyof typeof FRACTIONS];
+
     if (fraction) return whole ? `${whole}${fraction}` : fraction;
+
     return String(Number(quantity.toFixed(2)));
 };
 
@@ -102,9 +113,11 @@ export const ingredientLine = ({ name, quantity, unit }: DiscoverIngredient): st
         .join(' ');
 
 // Both library sources (Wikibooks and user-published) are CC BY-SA 4.0 today.
-const LICENCES: Record<string, { name: string; url: string }> = {
+const LICENCES = {
     'CC-BY-SA-4.0': { name: 'CC BY-SA 4.0', url: 'https://creativecommons.org/licenses/by-sa/4.0/' },
-};
+} satisfies Record<string, { name: string; url: string }>;
 
 /** The licence's name and deed URL, for the credit line and the JSON-LD `license`. Unknown ids show as given. */
-export const licenceFor = (spdx: string): { name: string; url?: string } => LICENCES[spdx] ?? { name: spdx };
+// SAFETY: a missing dictionary key yields undefined and takes the unknown-licence fallback.
+export const licenceFor = (spdx: string): { name: string; url?: string } =>
+    LICENCES[spdx as keyof typeof LICENCES] ?? { name: spdx };

@@ -16,6 +16,7 @@ export const prerender = true;
 
 export async function getStaticPaths() {
     const recipes = await getRecipes();
+
     return recipes.map((recipe) => ({ params: { slug: recipe.slug }, props: { recipe } }));
 }
 
@@ -28,6 +29,7 @@ const licence = licenceFor(recipe.licence);
 const ingredients = recipe.ingredients.map(ingredientLine);
 const totalTime = (recipe.prepTime ?? 0) + (recipe.cookTime ?? 0);
 const appLink = `${siteConfig.appUrl}/discover/${encodeURIComponent(recipe.id)}`;
+
 const author =
     recipe.source === 'wikibooks' ? 'Wikibooks Cookbook contributors' : (recipe.publishedBy ?? 'A Tandra user');
 
