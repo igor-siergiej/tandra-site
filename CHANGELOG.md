@@ -7,6 +7,8 @@
   and `format:check` to verify formatting. Pre-commit hooks use the same configuration.
 - Require Bun 1.4.4+ and Node 22.22.0+; pin Oxlint / `@oxlint/plugins` 1.93.0 and Oxfmt 0.78.0 to the
   shared release's published peer requirements. Document partial Astro linting and the Astro formatting boundary.
+- Run the e2e suite against a local fixture Discover API (`DISCOVER_API_URL`) on its own ports instead of
+  app.tandra.uk, and bring the privacy spec's local-storage key list up to the 13 keys the notice lists.
 
 ## [1.11.3](https://github.com/igor-siergiej/tandra-site/compare/v1.11.2...v1.11.3) (2026-10-24)
 

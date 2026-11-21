@@ -44,8 +44,11 @@ bun run test:e2e       # playwright
 ```
 
 Dev server needs no env, but every build (dev included) fetches the recipe pages from the app's public
-Discover API, so it needs network access. `bun run test:e2e` serves the existing `dist/` via `bun run preview`,
-so run `bun run build` first. CI also runs `bunx astro sync`, `tsc --noEmit` and
+Discover API, so it needs network access. `bun run test:e2e` is offline: Playwright starts a local fixture
+Discover API (`e2e/support/discover-api.ts`, `:4322`), builds the site against it with `DISCOVER_API_URL` and
+previews the result on `:4323`, so it neither needs app.tandra.uk nor collides with a dev server on `:4321`
+(override with `E2E_DISCOVER_PORT` / `E2E_SITE_PORT`). With `E2E_BASE_URL` set it targets that deployed site instead.
+CI also runs `bunx astro sync`, `tsc --noEmit` and
 `bun run typecheck` (`astro check`). Vitest covers `src/**/*.test.ts`; Playwright covers `e2e/*.spec.ts`
 (`@smoke` specs also run against production after a deploy).
 

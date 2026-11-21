@@ -11,9 +11,13 @@ const row = (page: Page, id: string, name: RegExp) => section(page, id).getByRol
 
 const LOCAL_STORAGE_KEYS = [
     'tandra:config',
+    'tandra:session-user',
     'tandra:lastSeenVersion',
     'tandra:guest-mode',
     'tandra:sign-out-pending',
+    'umami.disabled',
+    'tandra.replayConsent',
+    'tandra.analyticsPromptSeen',
     'tandra.voiceKeepListening',
     'tandra.groupByAisle',
     'theme',
